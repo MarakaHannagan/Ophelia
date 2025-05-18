@@ -1,0 +1,66 @@
+import os
+import requests
+
+
+#api key
+api_key = os.getenv("MIMO_OPENAI_API_KEY")
+url = ("https://ai.mimo.org/v1/openai/message")
+headers = {"api-key":api_key}
+
+#thread ID for user
+current_thread_id = None
+
+#send a message
+def send_message (user_message, current_thread_id):
+  body = {"message":user_message}
+  if current_thread_id:
+        body["threadId"] = current_thread_id
+  response = requests.post(url, headers=headers, json= body)
+  return response.json()
+  
+#Beginning Dialogue with Ophelia. How can we improve readibility in the console output?
+print("===================================")
+print("~+--------------------------------+~")
+print("Welcome! I am Ophelia and I am here to help with your job search. Type your message and press Enter to send.")
+print("~+--------------------------------+~")
+print("Here are some basic phrases to help you best interact with me: ")
+print("  | Type 'exit' to end the program.")
+print("  | Type 'new' to start a new conversation thread.")
+print("------------------------------------")
+print("If you're feeling stuck as to where to begin, here are a couple of things you can ask me to do: ")
+print("  | Positive affirmations,") 
+print("  | Resume tips,")
+print("  | What skills do I need for x-position,") 
+print("  | Making your LinkedIn profile shine,") 
+print("  | Or do a mock interview.")
+print("===================================")
+print("Starting a new thread for you now. Let's help you nail your next role!\n")
+
+threads = []
+#Initializing conversation with Ophelia after beginning dialogue.
+while True: 
+  #get user's input
+  user_message = input("You: ")
+  if user_message.lower() == "exit":
+    print("Sounds good! Great work today. I am proud of you for taking the first step in your career journey.")
+    break
+  elif user_message.lower() == "new":
+    current_thread_id = None
+    print("Thank you for your input. Please note a new conversation is starting now.")
+    continue
+  if len(threads) >= 3:  # Example condition to break after several threads
+    print("You've interacted quite a bit. Want to continue? Type 'yes' or 'exit'.")
+    user_message = input("You: ")
+    if user_message.lower() == "exit":
+      print("Goodbye!")
+      break
+  response_data = send_message(user_message, current_thread_id)
+  latest_message = response_data.get("response")
+  current_thread_id = response_data.get("threadId")
+  #response from Ophelia
+  print(f'Ophelia: {latest_message}')
+  if current_thread_id not in threads:
+    threads.append(current_thread_id)
+
+
+  
